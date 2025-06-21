@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Basic Calculator</title>
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <div class="calculator">
+    <div class="display" id="display">0</div>
+    <div class="buttons">
+      <button class="clear" onclick="clearDisplay()">C</button>
+      <button class="operator" onclick="appendToDisplay('/')">/</button>
+      <button class="operator" onclick="appendToDisplay('*')">x</button>
+      <button class="operator" onclick="appendToDisplay('-')">-</button>
+      <button onclick="appendToDisplay('7')">7</button>
+      <button onclick="appendToDisplay('8')">8</button>
+      <button onclick="appendToDisplay('9')">9</button>
+      <button class="operator" onclick="appendToDisplay('+')">+</button>
+      <button onclick="appendToDisplay('4')">4</button>
+      <button onclick="appendToDisplay('5')">5</button>
+      <button onclick="appendToDisplay('6')">6</button>
+      <button onclick="appendToDisplay('.')">.</button>
+      <button onclick="appendToDisplay('1')">1</button>
+      <button onclick="appendToDisplay('2')">2</button>
+      <button onclick="appendToDisplay('3')">3</button>
+      <button class="equals" onclick="calculate()">=</button>
+      <button onclick="appendToDisplay('0')" style="grid-column: span 3;">0</button>
+    </div>
+  </div>
+
+  <script>
+    let display = document.getElementById('display');
+    let currentInput = '0';
+    let operator = '';
+    let firstOperand = null;
+    let waitingForSecondOperand = false;
+
+    function appendToDisplay(value) {
+      if (waitingForSecondOperand) {
+        currentInput = value;
+        waitingForSecondOperand = false;
+      } else {
+        currentInput = currentInput === '0' ? value : currentInput + value;
+      }
+      updateDisplay();
+    }
+
+    function clearDisplay() {
+      currentInput = '0';
+      operator = '';
+      firstOperand = null;
+      waitingForSecondOperand = false;
+      updateDisplay();
+    }
+
+    function updateDisplay() {
+      display.textContent = currentInput;
+    }
+
+    function calculate() {
+      if (firstOperand === null || !operator) return;
+
+      let result;
+      const secondOperand = parseFloat(currentInput);
+
+      if (isNaN(secondOperand)) return;
+
+      switch (operator) {
+        case '+':
+          result = firstOperand + secondOperand;
+          break;
+        case '-':
+          result = firstOperand - secondOperand;
+          break;
+        case '*':
+          result = firstOperand * secondOperand;
+          break;
+        case '/':
+          if (secondOperand === 0) {
+            alert("Cannot divide by zero!");
+            clearDisplay();
+            return;
+          }
+          result = firstOperand / secondOperand;
+          break;
+        default:
+          return;
+      }
+
+      currentInput = result.toString();
+      firstOperand = result;
+      waitingForSecondOperand = true;
+      operator = '';
+      updateDisplay();
+    }
+
+    function handleOperator(nextOperator) {
+      if (currentInput === '') return;
+
+      if (firstOperand === null) {
+        firstOperand = parseFloat(currentInput);
+      } else if (operator) {
+        calculate();
+      }
+
+      operator = nextOperator;
+      waitingForSecondOperand = true;
+    }
+
+    document.querySelectorAll('.operator').forEach(button => {
+      button.addEventListener('click', () => handleOperator(button.textContent));
+    });
+  </script>
+</body>
+</html>
